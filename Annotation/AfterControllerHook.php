@@ -1,16 +1,14 @@
 <?php
 
 namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * @Annotation
  */
-class BeforeControllerHook extends ControllerHookAnnotationBase
+class AfterControllerHook extends ControllerHookAnnotationBase
 {
-    /**
-     * @return mixed the Controller hook result
-     */
-    public function triggerControllerHook()
+    public function triggerControllerHook(Response $response)
     {
         if ('@' == $this->targetCallable[0]) {
             // The target is a "@serviceId::method" string
@@ -22,6 +20,9 @@ class BeforeControllerHook extends ControllerHookAnnotationBase
             $callable = array($this->controller[0], $this->targetCallable);
         }
 
-        return call_user_func_array($callable, $this->targetCallableArgs);
+        $hookArgs = $this->targetCallableArgs;
+        array_unshift($hookArgs, $response);
+
+        return call_user_func_array($callable, $hookArgs);
     }
 }

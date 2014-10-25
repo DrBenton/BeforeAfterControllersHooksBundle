@@ -7,7 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class FooControllerBeforeAtMethod
 {
-    public $preHooksResults = array();
+    public $beforeHooksResults = array();
 
     /**
      * @BeforeHook("preHookWithoutReturnedResponse")
@@ -29,7 +29,7 @@ class FooControllerBeforeAtMethod
      * @BeforeHook("preHookWithoutReturnedResponse")
      * @BeforeHook("preHookWithoutReturnedResponse")
      */
-    public function selfContainedMultiplePreHooksActionWithoutHookResponseAction()
+    public function selfContainedMultipleBeforeHooksActionWithoutHookResponseAction()
     {
         return new Response('controllerResponse');
     }
@@ -39,26 +39,26 @@ class FooControllerBeforeAtMethod
      * @BeforeHook("preHookWithReturnedResponse")
      * @BeforeHook("preHookThrowsException")
      */
-    public function selfContainedMultiplePreHooksActionWithHookResponseAction()
+    public function selfContainedMultipleBeforeHooksActionWithHookResponseAction()
     {
         throw new \Exception('The "'.__METHOD__.'" Action should never be called!');
     }
 
     public function preHookWithoutReturnedResponse()
     {
-        $this->preHooksResults[] = 'preHookTriggered';
+        $this->beforeHooksResults[] = 'afterHookTriggered';
     }
 
     public function preHookWithReturnedResponse()
     {
-        $this->preHooksResults[] = 'preHookTriggered';
+        $this->beforeHooksResults[] = 'afterHookTriggered';
 
         return new Response('hookResponse');
     }
 
     public function preHookThrowsException()
     {
-        $this->preHooksResults[] = 'preHookTriggered';
+        $this->beforeHooksResults[] = 'afterHookTriggered';
         throw new \Exception('The "'.__METHOD__.'" Action should never be called!');
     }
 }

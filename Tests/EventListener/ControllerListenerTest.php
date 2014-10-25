@@ -32,6 +32,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->container = new Container();
+        $this->kernel = new HttpKernel(new EventDispatcher(), new ControllerResolver());
         $this->listener = new ControllerListener(new AnnotationReader());
         $this->request = new Request();
 
@@ -41,6 +42,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        $this->kernel = null;
         $this->listener = null;
         $this->request = null;
     }
@@ -49,7 +51,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
     {
         $controller = $this->triggerControllerAction('selfContainedPreHookActionWithoutHookResponseAction');
 
-        $this->assertCount(1, $controller->preHooksResults, 'Controller hook should have been triggered');
+        $this->assertCount(1, $controller->beforeHooksResults, 'Controller @BeforeHook callback should have been triggered');
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
@@ -65,9 +67,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithoutReturnedResponse()
     {
-        $controller = $this->triggerControllerAction('selfContainedMultiplePreHooksActionWithoutHookResponseAction');
+        $controller = $this->triggerControllerAction('selfContainedMultipleBeforeHooksActionWithoutHookResponseAction');
 
-        $this->assertCount(2, $controller->preHooksResults, 'Two Controllers hooks should have been triggered');
+        $this->assertCount(2, $controller->beforeHooksResults, 'Two Controllers @BeforeHook callbacks should have been triggered');
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should not have been triggered');
@@ -75,14 +77,18 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithReturnedResponse()
     {
-        $controller = $this->triggerControllerAction('selfContainedMultiplePreHooksActionWithHookResponseAction');
+        $controller = $this->triggerControllerAction('selfContainedMultipleBeforeHooksActionWithHookResponseAction');
 
-        $this->assertCount(2, $controller->preHooksResults, 'Only two Controllers hooks should have been triggered');
+        $this->assertCount(2, $controller->beforeHooksResults, 'Only two Controllers @BeforeHook callbacks should have been triggered');
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
     }
 
+    /**
+     * @param string $actionName
+     * @return FooControllerBeforeAtMethod
+     */
     protected function triggerControllerAction($actionName)
     {
         $controller = new FooControllerBeforeAtMethod();
@@ -96,8 +102,6 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     protected function getFilterControllerEvent($controller, Request $request)
     {
-        $this->kernel = new HttpKernel(new EventDispatcher(), new ControllerResolver());
-
         return new FilterControllerEvent($this->kernel, $controller, $request, HttpKernelInterface::MASTER_REQUEST);
     }
 

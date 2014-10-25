@@ -2,40 +2,19 @@
 
 namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener;
 
-use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\ClassUtils;
 use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
-use Symfony\Component\DependencyInjection\ContainerAware;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-class ControllerListener extends ContainerAware implements EventSubscriberInterface
+class ControllerListener extends ListenerBase implements EventSubscriberInterface
 {
-    /**
-     * @var \Doctrine\Common\Annotations\Reader
-     */
-    protected $annotationReader;
-
-    public function __construct(Reader $annotationReader)
-    {
-        $this->annotationReader = $annotationReader;
-    }
-
     public function onKernelController(FilterControllerEvent $event)
     {
         $controller = $event->getController();
-
-        if (is_array($controller)) {
-            $className = class_exists('Doctrine\Common\Util\ClassUtils') ? ClassUtils::getClass($controller[0]) : get_class($controller[0]);
-            $object    = new \ReflectionClass($className);
-            $method    = $object->getMethod($controller[1]);
-
-            $controllerAnnotations = $this->annotationReader->getMethodAnnotations($method);
-        } else {
-            //TODO: handle non OOP controllers?
-        }
+        $controllerAnnotations = $this->getControllerAnnotations($controller);
 
         if (empty($controllerAnnotations)) {
             return;
@@ -62,19 +41,19 @@ class ControllerListener extends ContainerAware implements EventSubscriberInterf
 
     protected function handleControllerBeforeHooksAnnotations($controller, array $controllerAnnotations)
     {
-        $preHooks = array();
+        $beforeHooks = array();
         foreach ($controllerAnnotations as $annotation) {
             if ($annotation instanceof BeforeHook) {
-                $preHooks[] = $annotation;
+                $beforeHooks[] = $annotation;
             }
         }
 
-        /** @var BeforeHook $preHook */
-        foreach ($preHooks as $preHook) {
-            $preHook->setContainer($this->container);
-            $preHook->setController($controller);
+        /** @var BeforeHook $beforeHook */
+        foreach ($beforeHooks as $beforeHook) {
+            $beforeHook->setContainer($this->container);
+            $beforeHook->setController($controller);
 
-            $controllerHookResult = $preHook->triggerControllerHook();
+            $controllerHookResult = $beforeHook->triggerControllerHook();
 
             if ($controllerHookResult instanceof Response) {
                 // Hey, seems that this Controller hook wants to bypass its Controller call!

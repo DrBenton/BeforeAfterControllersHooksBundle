@@ -16,5 +16,13 @@
             </call>
             <tag name="kernel.event_subscriber" />
         </service>
+        <service id="before_after_controllers_hooks.response.listener"
+                class="Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener">
+            <argument type="service" id="annotation_reader" />
+            <call method="setContainer">
+                <argument type="service" id="service_container" />
+            </call>
+            <tag name="kernel.event_subscriber" />
+        </service>
     </services>
 </container>
