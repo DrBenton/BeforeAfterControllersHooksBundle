@@ -1,0 +1,22 @@
+{
+    "name": "rougemine/before-after-controllers-hooks-bundle",
+    "description": "Provides \"@BeforeHook\" and \"@AfterHook\" Annotations support for Symfony Controllers",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Olivier Philippon",
+            "email": "olivier@rougemine.com"
+        }
+    ],
+    "require": {
+        "doctrine/annotations": "~1.2",
+        "symfony/framework-bundle": "~2.5",
+        "doctrine/common": "~2.4"
+    },
+    "require-dev": {
+    },
+    "autoload":     {
+        "psr-0": { "Rougemine\\Bundle\\BeforeAfterControllersHooksBundle": "" }
+    },
+    "target-dir": "Rougemine/Bundle/BeforeAfterControllersHooksBundle"
+}
