@@ -1,5 +1,7 @@
 # BeforeAfterControllersHooksBundle
 
+[![build status](https://secure.travis-ci.org/DrBenton/BeforeAfterControllersHooksBundle.png)](http://travis-ci.org/DrBenton/BeforeAfterControllersHooksBundle)
+
 If you like [Silex routes middlewares](http://silex.sensiolabs.org/doc/middlewares.html#route-middlewares)
 or [Ruby on Rails actions filters](http://guides.rubyonrails.org/action_controller_overview.html#filters),
 you may appreciate this Bundle, as it mimics this behaviour in Symfony2, thanks to specific Annotations.
@@ -101,6 +103,37 @@ class BooksController extends Controller
             );
         }
     }
+}
+```
+
+## Installation
+
+### Step 1: Composer
+
+Add the following line to the `composer.json` file:
+
+``` json
+{
+    "require": {
+        "dr-benton/before-after-controllers-hooks-bundle": "@dev-master"
+    }
+}
+```
+
+### Step 2: Enable the bundle
+
+Finally, enable the bundle in the kernel:
+
+``` php
+<?php
+// app/AppKernel.php
+
+public function registerBundles()
+{
+    $bundles = array(
+        // ...
+        new DrBenton\Bundle\BeforeAfterControllersHooksBundle\BeforeAfterControllersHooksBundle(),
+    );
 }
 ```
 
