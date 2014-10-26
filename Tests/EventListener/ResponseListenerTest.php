@@ -8,9 +8,9 @@
 
 namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
 
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerAfterAtMethod;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\DependencyInjection\Container;
@@ -73,7 +73,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testServiceCallAnnotationAtMethod()
     {
-        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->initTestService();
 
         list($controller, $response) = $this->triggerControllerAction('serviceAfterHookAction');
 
@@ -82,7 +82,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testAnnotationWithArgsAtMethod()
     {
-        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->initTestService();
 
         list($controller, $response) = $this->triggerControllerAction('serviceAfterHookWithArgsAction');
 
@@ -110,5 +110,10 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
     protected function getFilterResponseEvent(Request $request, Response $response)
     {
         return new FilterResponseEvent($this->kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
+    }
+
+    protected function initTestService()
+    {
+        $this->container->set('testService', new TestService());
     }
 }
