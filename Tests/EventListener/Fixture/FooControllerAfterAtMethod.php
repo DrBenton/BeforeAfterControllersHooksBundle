@@ -25,6 +25,22 @@ class FooControllerAfterAtMethod
         return new Response('controllerResponse');
     }
 
+    /**
+     * @AfterHook("@testService::afterHook")
+     */
+    public function serviceAfterHookAction()
+    {
+        return new Response('controllerResponse');
+    }
+
+    /**
+     * @AfterHook("@testService::afterHookWithArgs", args={"test1", {"key": "value"}})
+     */
+    public function serviceAfterHookWithArgsAction()
+    {
+        return new Response('controllerResponse');
+    }
+
     public function afterHookWithoutResponseModification()
     {
         $this->afterHooksResults[] = 'afterHookTriggered';

@@ -24,6 +24,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Container **/
+    protected $container;
     /** @var ResponseListener **/
     protected $listener;
     /** @var Request **/
@@ -36,6 +38,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->container = new Container();
         $this->kernel = new HttpKernel(new EventDispatcher(), new ControllerResolver());
         $this->listener = new ResponseListener(new AnnotationReader());
+        $this->listener->setContainer($this->container);
         $this->request = new Request();
 
         // trigger the autoloading of our Controllers hooks annotation
@@ -44,6 +47,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        $this->container = null;
         $this->kernel = null;
         $this->listener = null;
         $this->request = null;
@@ -67,6 +71,24 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('controllerResponse + hookResponse', $response->getContent(), 'Controller response should have been modified');
     }
 
+    public function testServiceCallAnnotationAtMethod()
+    {
+        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+
+        list($controller, $response) = $this->triggerControllerAction('serviceAfterHookAction');
+
+        $this->assertEquals('controllerResponse + serviceHookResponse', $response->getContent(), 'Controller response should have been modified by a Service hook');
+    }
+
+    public function testAnnotationWithArgsAtMethod()
+    {
+        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+
+        list($controller, $response) = $this->triggerControllerAction('serviceAfterHookWithArgsAction');
+
+        $this->assertEquals('controllerResponse + serviceHookResponse; args=["test1",{"key":"value"}]', $response->getContent(), 'Controller response should have been modified by a Service hook with args');
+    }
+
     /**
      * @param string $actionName
      * @return FooControllerAfterAtMethod
@@ -88,12 +110,5 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
     protected function getFilterResponseEvent(Request $request, Response $response)
     {
         return new FilterResponseEvent($this->kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
-    }
-
-    protected function getKernelResponse(/** callable */  $targetAction)
-    {
-        $this->request->attributes->set('_controller', $targetAction);
-
-        return $this->kernel->handle($this->request);
     }
 }

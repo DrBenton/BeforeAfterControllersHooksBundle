@@ -8,20 +8,14 @@ namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation;
 class BeforeControllerHook extends ControllerHookAnnotationBase
 {
     /**
-     * @return mixed the Controller hook result
+     * @return mixed the Controller "before hook" result; if it's a Symfony Response, the target Controller will be short-circuited
      */
     public function triggerControllerHook()
     {
-        if ('@' == $this->targetCallable[0]) {
-            // The target is a "@serviceId::method" string
-            list($serviceId, $serviceMethodName) = explode('::', $this->targetCallable);
-            $serviceId = substr($serviceId, 1);// leading "@" removal
-            $callable = array($this->container->get($serviceId), $serviceMethodName);
-        } else {
-            // The target is a method name of the Controller itself
-            $callable = array($this->controller[0], $this->targetCallable);
-        }
+        $targetCallable = $this->resolveTargetCallable();
 
-        return call_user_func_array($callable, $this->targetCallableArgs);
+        $callableArgs = $this->targetCallableArgs;
+
+        return call_user_func_array($targetCallable, $callableArgs);
     }
 }

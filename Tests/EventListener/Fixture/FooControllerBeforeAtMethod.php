@@ -44,6 +44,22 @@ class FooControllerBeforeAtMethod
         throw new \Exception('The "'.__METHOD__.'" Action should never be called!');
     }
 
+    /**
+     * @BeforeHook("@testService::beforeHook")
+     */
+    public function serviceBeforeHookAction()
+    {
+        return new Response('controllerResponse');
+    }
+
+    /**
+     * @BeforeHook("@testService::beforeHookWithArgs", args={"test1", {"key": "value"}})
+     */
+    public function serviceBeforeHookWithArgsAction()
+    {
+        return new Response('controllerResponse');
+    }
+
     public function preHookWithoutReturnedResponse()
     {
         $this->beforeHooksResults[] = 'afterHookTriggered';

@@ -22,6 +22,8 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 {
+    /** @var Container **/
+    protected $container;
     /** @var ControllerListener **/
     protected $listener;
     /** @var Request **/
@@ -34,6 +36,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->container = new Container();
         $this->kernel = new HttpKernel(new EventDispatcher(), new ControllerResolver());
         $this->listener = new ControllerListener(new AnnotationReader());
+        $this->listener->setContainer($this->container);
         $this->request = new Request();
 
         // trigger the autoloading of our Controllers hooks annotation
@@ -42,6 +45,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function tearDown()
     {
+        $this->container = null;
         $this->kernel = null;
         $this->listener = null;
         $this->request = null;
@@ -72,7 +76,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $controller->beforeHooksResults, 'Two Controllers @BeforeHook callbacks should have been triggered');
 
         $response = $this->getKernelResponse($this->event->getController());
-        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should not have been triggered');
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been short-circuited by the @BeforeHook');
     }
 
     public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithReturnedResponse()
@@ -83,6 +87,26 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
+    }
+
+    public function testServiceCallAnnotationAtMethod()
+    {
+        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+
+        $controller = $this->triggerControllerAction('serviceBeforeHookAction');
+
+        $response = $this->getKernelResponse($this->event->getController());
+        $this->assertEquals('serviceBeforeHook', $response->getContent(), 'Service @BeforeHook should have short-circuited the Controller');
+    }
+
+    public function testAnnotationWithArgsAtMethod()
+    {
+        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+
+        $controller = $this->triggerControllerAction('serviceBeforeHookWithArgsAction');
+
+        $response = $this->getKernelResponse($this->event->getController());
+        $this->assertEquals('serviceBeforeHook; args=["test1",{"key":"value"}]', $response->getContent(), 'Service @BeforeHook should have short-circuited the Controller with args');
     }
 
     /**
