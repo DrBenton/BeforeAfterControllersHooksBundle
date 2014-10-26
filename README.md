@@ -14,6 +14,94 @@ If a "@BeforeHook" callback returns a Response object, the Request handling is s
 (the next hooks won't be run, neither the Controller action), and the Response is passed to the "@AfterHook" callback(s)
 right away - or returned to the client if no @AfterHook is linked to this Controller Action.
 
+## Synopsis
+
+As always, a code sample may be worth a thousand words:
+
+```php
+<?php
+
+namespace AppBundle\Controller;
+
+use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
+use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook as AfterHook;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
+
+class BooksController extends Controller
+{
+    /**
+     * The Controller 'checkBooksAvailability()' method will be triggered before this Controller action:
+     *
+     * @BeforeHook("checkBooksAvailability")
+     * @Template()
+     */
+    public function indexAction()
+    {
+        $books = $this->getDoctrine()
+                    ->getRepository('AppBundle:Book')
+                    ->findAll();
+
+        return ['books' => $books];
+    }
+
+    /**
+     * You can also send params to the triggered hook:
+     *
+     * @BeforeHook("doSomethingBeforeAction", args={"param1", "param2"})
+     * @Template()
+     */
+    public function showAction(Book $book)
+    {
+        return ['book' => $book];
+    }
+
+    /**
+     * Want to trigger a Symfony Service method? No problem!
+     * Just use the "@[serviceId]::[methodName]" notation:
+     *
+     * @BeforeHook("@logger::addInfo", args={"showComments() will be called"})
+     * @Template()
+     */
+    public function showCommentsAction(Book $book)
+    {
+        return ['book' => $book];
+    }
+
+    /**
+     * You can also trigger a custom callable after the Controller action:
+     *
+     * @BAfterHook("addDebugCodeAfterAction")
+     * @Template()
+     */
+    public function showSomethingAction(Book $book)
+    {
+        return ['book' => $book];
+    }
+
+    protected function checkBooksAvailability()
+    {
+        // Do something here...
+        // It this method returns a Symfony Response, the Controller will be short-circuited
+        // and this Response will be sent to the client.
+    }
+
+    protected function doSomethingBeforeAction($arg1, $arg2)
+    {
+        // Do something here...
+    }
+
+    protected function addDebugCodeAfterAction(Response $controllerResponse)
+    {
+        if ($this->container->getParameter('debug')) {
+            $controllerResponse->setContent(
+                $controllerResponse->getContent().'<script src="//assets/js/debug.js"></script>'
+            );
+        }
+    }
+}
+```
+
 ## License
 
 Copyright (c) 2014 Olivier Philippon
