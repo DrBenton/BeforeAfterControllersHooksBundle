@@ -4,3 +4,7 @@ php:
   - 5.3
   - 5.4
   - 5.5
+
+before_script:
+  # Composer install
+  - composer install --no-interaction --prefer-source # Have to prefer source or hit github rate limit
