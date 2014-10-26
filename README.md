@@ -23,15 +23,16 @@ As always, a code sample may be worth a thousand words:
 
 namespace AppBundle\Controller;
 
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook as AfterHook;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook as AfterHook;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
 class BooksController extends Controller
 {
     /**
-     * The Controller 'checkBooksAvailability()' method will be triggered before this Controller action:
+     * The Controller 'checkBooksAvailability()' method will be triggered
+     * before this Controller action:
      *
      * @BeforeHook("checkBooksAvailability")
      * @Template()
@@ -82,8 +83,8 @@ class BooksController extends Controller
     protected function checkBooksAvailability()
     {
         // Do something here...
-        // It this method returns a Symfony Response, the Controller will be short-circuited
-        // and this Response will be sent to the client.
+        // It this method returns a Symfony Response, the Controller
+        // will be short-circuited and this Response will be sent to the client.
     }
 
     protected function doSomethingBeforeAction($arg1, $arg2)
@@ -95,7 +96,8 @@ class BooksController extends Controller
     {
         if ($this->container->getParameter('debug')) {
             $controllerResponse->setContent(
-                $controllerResponse->getContent().'<script src="//assets/js/debug.js"></script>'
+                $controllerResponse->getContent() .
+                '<script src="//assets/js/debug.js"></script>'
             );
         }
     }

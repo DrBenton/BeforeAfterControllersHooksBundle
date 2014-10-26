@@ -1,6 +1,6 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\DependencyInjection;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;

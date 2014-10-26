@@ -1,9 +1,9 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener;
 
 use Doctrine\Common\Util\ClassUtils;
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;

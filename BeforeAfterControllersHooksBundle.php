@@ -1,6 +1,6 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

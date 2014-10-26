@@ -1,6 +1,6 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener;
 
 use Doctrine\Common\Annotations\Reader;
 use Doctrine\Common\Util\ClassUtils;
@@ -24,15 +24,15 @@ abstract class ListenerBase extends ContainerAware
      */
     protected function getControllerAnnotations($controller)
     {
-        if (is_array($controller)) {
-            $className = class_exists('Doctrine\Common\Util\ClassUtils') ? ClassUtils::getClass($controller[0]) : get_class($controller[0]);
-            $object    = new \ReflectionClass($className);
-            $method    = $object->getMethod($controller[1]);
-
-            $controllerAnnotations = $this->annotationReader->getMethodAnnotations($method);
-        } else {
-            //TODO: handle non OOP controllers?
+        if (!is_array($controller)) {
+            return array();//We only handle OOP Controllers for the moment...
         }
+
+        $className = class_exists('Doctrine\Common\Util\ClassUtils') ? ClassUtils::getClass($controller[0]) : get_class($controller[0]);
+        $object    = new \ReflectionClass($className);
+        $method    = $object->getMethod($controller[1]);
+
+        $controllerAnnotations = $this->annotationReader->getMethodAnnotations($method);
 
         return $controllerAnnotations;
     }

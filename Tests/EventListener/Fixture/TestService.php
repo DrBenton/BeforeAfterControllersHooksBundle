@@ -1,6 +1,6 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture;
 
 use Symfony\Component\HttpFoundation\Response;
 

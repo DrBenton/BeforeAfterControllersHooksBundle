@@ -6,11 +6,11 @@
  * @see https://github.com/sensiolabs/SensioFrameworkExtraBundle/blob/master/Tests%2FEventListener%2FControllerListenerTest.php
  */
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
 
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener;
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerAfterAtMethod;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerAfterAtMethod;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\DependencyInjection\Container;
@@ -42,7 +42,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->request = new Request();
 
         // trigger the autoloading of our Controllers hooks annotation
-        class_exists('Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook');
+        class_exists('DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook');
     }
 
     public function tearDown()
@@ -73,7 +73,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testServiceCallAnnotationAtMethod()
     {
-        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
 
         list($controller, $response) = $this->triggerControllerAction('serviceAfterHookAction');
 
@@ -82,7 +82,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testAnnotationWithArgsAtMethod()
     {
-        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
 
         list($controller, $response) = $this->triggerControllerAction('serviceAfterHookWithArgsAction');
 

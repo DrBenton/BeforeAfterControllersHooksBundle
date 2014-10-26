@@ -1,6 +1,6 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation;
 
 use Symfony\Component\DependencyInjection\ContainerAware;
 

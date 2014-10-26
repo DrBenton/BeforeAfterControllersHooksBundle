@@ -1,8 +1,8 @@
 <?php
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture;
 
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook as AfterHook;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook as AfterHook;
 use Symfony\Component\HttpFoundation\Response;
 
 class FooControllerAfterAtMethod

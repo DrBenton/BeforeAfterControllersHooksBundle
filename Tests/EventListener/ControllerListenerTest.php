@@ -6,10 +6,10 @@
  * @see https://github.com/sensiolabs/SensioFrameworkExtraBundle/blob/master/Tests%2FEventListener%2FControllerListenerTest.php
  */
 
-namespace Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
 
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
-use Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtMethod;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtMethod;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\DependencyInjection\Container;
@@ -40,7 +40,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->request = new Request();
 
         // trigger the autoloading of our Controllers hooks annotation
-        class_exists('Rougemine\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook');
+        class_exists('DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook');
     }
 
     public function tearDown()
@@ -91,7 +91,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testServiceCallAnnotationAtMethod()
     {
-        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
 
         $controller = $this->triggerControllerAction('serviceBeforeHookAction');
 
@@ -101,7 +101,7 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     public function testAnnotationWithArgsAtMethod()
     {
-        $this->container->set('testService', 'Rougemine\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
+        $this->container->set('testService', 'DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService');
 
         $controller = $this->triggerControllerAction('serviceBeforeHookWithArgsAction');
 
