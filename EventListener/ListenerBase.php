@@ -32,8 +32,12 @@ abstract class ListenerBase extends ContainerAware
         $object    = new \ReflectionClass($className);
         $method    = $object->getMethod($controller[1]);
 
+        $classAnnotations = $this->annotationReader->getClassAnnotations($object);
         $controllerAnnotations = $this->annotationReader->getMethodAnnotations($method);
 
-        return $controllerAnnotations;
+        return array_merge(
+            $classAnnotations,
+            $controllerAnnotations
+        );
     }
 } 

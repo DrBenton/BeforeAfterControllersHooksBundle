@@ -6,12 +6,24 @@ use Symfony\Component\HttpFoundation\Response;
 
 class TestService
 {
+    public $beforeHooksResults = array();
+
     public function beforeHook()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered';
+    }
+
+    public function beforeHookWithArgs()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered: args=' . json_encode(func_get_args());
+    }
+
+    public function beforeHookWithResponse()
     {
         return new Response('serviceBeforeHook');
     }
 
-    public function beforeHookWithArgs()
+    public function beforeHookWithResponseWithArgs()
     {
         return new Response('serviceBeforeHook; args=' . json_encode(func_get_args()));
     }

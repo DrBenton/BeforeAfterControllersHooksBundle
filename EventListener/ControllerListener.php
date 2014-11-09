@@ -2,7 +2,6 @@
 
 namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener;
 
-use Doctrine\Common\Util\ClassUtils;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;

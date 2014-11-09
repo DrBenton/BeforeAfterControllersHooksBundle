@@ -10,7 +10,7 @@ class FooControllerBeforeAtMethod
     public $beforeHooksResults = array();
 
     /**
-     * @BeforeHook("preHookWithoutReturnedResponse")
+     * @BeforeHook("beforeHookWithoutReturnedResponse")
      */
     public function selfContainedPreHookActionWithoutHookResponseAction()
     {
@@ -18,7 +18,7 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("preHookWithReturnedResponse")
+     * @BeforeHook("beforeHookWithReturnedResponse")
      */
     public function selfContainedPreHookActionWithHookResponseAction()
     {
@@ -26,8 +26,8 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("preHookWithoutReturnedResponse")
-     * @BeforeHook("preHookWithoutReturnedResponse")
+     * @BeforeHook("beforeHookWithoutReturnedResponse")
+     * @BeforeHook("beforeHookWithoutReturnedResponse")
      */
     public function selfContainedMultipleBeforeHooksActionWithoutHookResponseAction()
     {
@@ -35,9 +35,25 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("preHookWithoutReturnedResponse")
-     * @BeforeHook("preHookWithReturnedResponse")
-     * @BeforeHook("preHookThrowsException")
+     * @BeforeHook("beforeHookWithoutReturnedResponseWithArgs", args={"hi": "Hi", "there": "there!"})
+     */
+    public function selfContainedBeforeHooksActionWithoutHookResponseWithArgsAction()
+    {
+        return new Response('controllerResponse');
+    }
+
+    /**
+     * @BeforeHook("beforeHookWithReturnedResponseWithArgs", args={"hi": "Hi", "there": "there!"})
+     */
+    public function selfContainedPreHookActionWithHookResponseWithArgsAction()
+    {
+        throw new \Exception('The "'.__METHOD__.'" Action should never be called!');
+    }
+
+    /**
+     * @BeforeHook("beforeHookWithoutReturnedResponse")
+     * @BeforeHook("beforeHookWithReturnedResponse")
+     * @BeforeHook("beforeHookThrowsException")
      */
     public function selfContainedMultipleBeforeHooksActionWithHookResponseAction()
     {
@@ -60,21 +76,49 @@ class FooControllerBeforeAtMethod
         return new Response('controllerResponse');
     }
 
-    public function preHookWithoutReturnedResponse()
+    /**
+     * @BeforeHook("@testService::beforeHookWithResponse")
+     */
+    public function serviceBeforeHookWithResponseAction()
     {
-        $this->beforeHooksResults[] = 'afterHookTriggered';
+        return new Response('controllerResponse');
     }
 
-    public function preHookWithReturnedResponse()
+    /**
+     * @BeforeHook("@testService::beforeHookWithResponseWithArgs", args={"test1", {"key": "value"}})
+     */
+    public function serviceBeforeHookWithResponseWithArgsAction()
     {
-        $this->beforeHooksResults[] = 'afterHookTriggered';
+        return new Response('controllerResponse');
+    }
+
+    public function beforeHookWithoutReturnedResponse()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered';
+    }
+
+    public function beforeHookWithReturnedResponse()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered';
 
         return new Response('hookResponse');
     }
 
-    public function preHookThrowsException()
+    public function beforeHookWithoutReturnedResponseWithArgs($hi, $there)
     {
-        $this->beforeHooksResults[] = 'afterHookTriggered';
+        $this->beforeHooksResults[] = 'beforeHookTriggered: '.$hi.' '.$there;
+    }
+
+    public function beforeHookWithReturnedResponseWithArgs()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered';
+
+        return new Response('hookResponse: '.implode(' ', func_get_args()));
+    }
+
+    public function beforeHookThrowsException()
+    {
+        $this->beforeHooksResults[] = 'beforeHookTriggered';
         throw new \Exception('The "'.__METHOD__.'" Action should never be called!');
     }
 }
