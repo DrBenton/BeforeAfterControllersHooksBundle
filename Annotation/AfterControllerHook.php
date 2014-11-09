@@ -13,7 +13,12 @@ class AfterControllerHook extends ControllerHookAnnotationBase
         $targetCallable = $this->resolveTargetCallable();
 
         $callableArgs = $this->targetCallableArgs;
-        array_unshift($callableArgs, $response);
+        // "%response%" args are replaced with our Symfony Response
+        foreach ($callableArgs as $index => $arg) {
+            if ('%response%' === $arg) {
+                $callableArgs[$index] = $response;
+            }
+        }
 
         return call_user_func_array($targetCallable, $callableArgs);
     }

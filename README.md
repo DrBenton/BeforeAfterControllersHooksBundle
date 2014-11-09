@@ -74,7 +74,19 @@ class BooksController extends Controller
     /**
      * You can also trigger a custom callable after the Controller action:
      *
-     * @BAfterHook("addDebugCodeAfterAction")
+     * @AfterHook("addDebugCodeAfterAction")
+     * @Template()
+     */
+    public function showSomethingAction(Book $book)
+    {
+        return ['book' => $book];
+    }
+
+    /**
+     * You can use Services here too, and use params. Any "%response%" param
+     * will be replaced with the Controller's returned Symfony Reponse.
+     *
+     * @AfterHook("@my_service::doSomethingAfterAction", args={"%response%", {"key" => "value"}})
      * @Template()
      */
     public function showSomethingAction(Book $book)

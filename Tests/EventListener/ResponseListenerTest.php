@@ -10,6 +10,9 @@ namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
 
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerAfterAtMethod;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\After\FooControllerAfterAtClassWithoutResponseModificationWithoutArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\After\FooControllerAfterAtClassWithResponseModificationWithoutArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\After\FooControllerAfterAtClassServiceCallWithoutResponseModificationWithoutArgs;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService;
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -32,6 +35,8 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
     protected $request;
     /** @var HttpKernel **/
     protected $kernel;
+    /** @var FilterResponseEvent **/
+    protected $event;
 
     public function setUp()
     {
@@ -51,52 +56,185 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->kernel = null;
         $this->listener = null;
         $this->request = null;
+        $this->event = null;
     }
 
+    /**********************************
+     * Methods Annotations tests
+     *********************************/
+
+    /**
+     * Response modification: N - Args : N - Service call : N
+     */
     public function testSelfContainedAfterAnnotationAtMethodWithoutResponseModification()
     {
-        list($controller, $response) = $this->triggerControllerAction('selfContainedAfterHookActionWithoutResponseModificationAction');
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'selfContainedAfterHookActionWithoutResponseModificationAction'
+        );
 
         $this->assertCount(1, $controller->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
 
-        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered, without response modification');
     }
 
+    /**
+     * Response modification: Y - Args : N - Service call : N
+     */
     public function testSelfContainedAfterAnnotationAtMethodWithResponseModification()
     {
-        list($controller, $response) = $this->triggerControllerAction('selfContainedAfterHookActionWithResponseModificationAction');
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'selfContainedAfterHookActionWithResponseModificationAction'
+        );
 
         $this->assertCount(1, $controller->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
 
         $this->assertEquals('controllerResponse + hookResponse', $response->getContent(), 'Controller response should have been modified');
     }
 
-    public function testServiceCallAnnotationAtMethod()
+    /**
+     * Response modification: Y - Args : N - Service call : Y
+     */
+    public function testSelfContainedAfterAnnotationAtMethodWithoutResponseModificationWithArgs()
     {
         $this->initTestService();
 
-        list($controller, $response) = $this->triggerControllerAction('serviceAfterHookAction');
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'serviceAfterHookWithoutResponseModificationWithArgsAction'
+        );
+
+        $this->assertCount(1, $this->container->get('test_service')->afterHooksResults, 'Service hook should have been triggered');
+
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered, without response modification');
+        $this->assertEquals('afterHookTriggered: args=["test1",{"key":"value"}]', $this->container->get('test_service')->afterHooksResults[0], 'Service hook should have been triggered with args');
+    }
+
+    /**
+     * Response modification: N - Args : N - Service call : Y
+     */
+    public function testServiceCallAnnotationAtMethodWithoutResponseModification()
+    {
+        $this->initTestService();
+
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'serviceAfterHookWithoutResponseModificationAction'
+        );
+
+        $this->assertCount(1, $this->container->get('test_service')->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
+
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered, without response modification');
+    }
+
+    /**
+     * Response modification: Y - Args : N - Service call : Y
+     */
+    public function testServiceCallAnnotationAtMethodWithResponseModification()
+    {
+        $this->initTestService();
+
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'serviceAfterHookWithResponseModificationAction'
+        );
 
         $this->assertEquals('controllerResponse + serviceHookResponse', $response->getContent(), 'Controller response should have been modified by a Service hook');
     }
 
-    public function testAnnotationWithArgsAtMethod()
+    /**
+     * Response modification: N - Args : Y - Service call : Y
+     */
+    public function testServiceCallAnnotationAtMethodWithoutResponseModificationWithArgs()
     {
         $this->initTestService();
 
-        list($controller, $response) = $this->triggerControllerAction('serviceAfterHookWithArgsAction');
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'serviceAfterHookWithoutResponseModificationWithArgsAction'
+        );
+
+        $this->assertCount(1, $this->container->get('test_service')->afterHooksResults, 'Controller @AfterHook callback should have been triggered with args');
+
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered, without response modification');
+        $this->assertEquals('afterHookTriggered: args=["test1",{"key":"value"}]', $this->container->get('test_service')->afterHooksResults[0], 'Service hook should have been triggered with args');
+    }
+
+    /**
+     * Response modification: Y - Args : Y - Service call : Y
+     */
+    public function testServiceCallWithResponseAnnotationAtMethodWithArgs()
+    {
+        $this->initTestService();
+
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtMethod(),
+            'serviceAfterHookWithResponseModificationWithArgsAction'
+        );
 
         $this->assertEquals('controllerResponse + serviceHookResponse; args=["test1",{"key":"value"}]', $response->getContent(), 'Controller response should have been modified by a Service hook with args');
     }
 
+    /**********************************
+     * Class Annotations tests
+     *********************************/
+
     /**
-     * @param string $actionName
-     * @return FooControllerAfterAtMethod
+     * Response modification: N - Args : N - Service call : N
      */
-    protected function triggerControllerAction($actionName)
+    public function testSelfContainedAfterAnnotationAtClassWithoutResponseModification()
     {
-        $controller = new FooControllerAfterAtMethod();
-        $targetAction = array($controller, $actionName);
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtClassWithoutResponseModificationWithoutArgs(),
+            'testAction'
+        );
+
+        $this->assertCount(1, $controller->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
+
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
+    }
+
+    /**
+     * Response modification: Y - Args : N - Service call : N
+     */
+    public function testSelfContainedAfterAnnotationAtClassWithResponseModification()
+    {
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtClassWithResponseModificationWithoutArgs(),
+            'testAction'
+        );
+
+        $this->assertCount(1, $controller->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
+
+        $this->assertEquals('controllerResponse + hookResponse', $response->getContent(), 'Controller response should have been modified');
+    }
+
+    /**
+     * Response modification: N - Args : N - Service call : Y
+     */
+    public function testServiceCallAnnotationAtClassWithoutResponseModification()
+    {
+        $this->initTestService();
+
+        list($controller, $response) = $this->triggerControllerAction(
+            new FooControllerAfterAtClassServiceCallWithoutResponseModificationWithoutArgs(),
+            'testAction'
+        );
+
+        $this->assertCount(1, $this->container->get('test_service')->afterHooksResults, 'Controller @AfterHook callback should have been triggered');
+
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered, without response modification');
+    }
+
+    /**
+     * @param object $controllerInstance
+     * @param string $actionName
+     * @return [object, Response]
+     */
+    protected function triggerControllerAction($controllerInstance, $actionName)
+    {
+        $targetAction = array($controllerInstance, $actionName);
 
         $this->request->attributes->set('_controller', $targetAction);
         $response = $this->kernel->handle($this->request);
@@ -104,7 +242,7 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
         $this->event = $this->getFilterResponseEvent($this->request, $response);
         $this->listener->onKernelResponse($this->event);
 
-        return array($controller, $response);
+        return array($controllerInstance, $response);
     }
 
     protected function getFilterResponseEvent(Request $request, Response $response)
@@ -114,6 +252,6 @@ class ResponseListenerTest extends \PHPUnit_Framework_TestCase
 
     protected function initTestService()
     {
-        $this->container->set('testService', new TestService());
+        $this->container->set('test_service', new TestService());
     }
 }

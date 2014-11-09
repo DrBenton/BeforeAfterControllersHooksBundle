@@ -61,7 +61,7 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("@testService::beforeHook")
+     * @BeforeHook("@test_service::beforeHook")
      */
     public function serviceBeforeHookAction()
     {
@@ -69,7 +69,7 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("@testService::beforeHookWithArgs", args={"test1", {"key": "value"}})
+     * @BeforeHook("@test_service::beforeHookWithArgs", args={"test1", {"key": "value"}})
      */
     public function serviceBeforeHookWithArgsAction()
     {
@@ -77,7 +77,7 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("@testService::beforeHookWithResponse")
+     * @BeforeHook("@test_service::beforeHookWithResponse")
      */
     public function serviceBeforeHookWithResponseAction()
     {
@@ -85,7 +85,7 @@ class FooControllerBeforeAtMethod
     }
 
     /**
-     * @BeforeHook("@testService::beforeHookWithResponseWithArgs", args={"test1", {"key": "value"}})
+     * @BeforeHook("@test_service::beforeHookWithResponseWithArgs", args={"test1", {"key": "value"}})
      */
     public function serviceBeforeHookWithResponseWithArgsAction()
     {

@@ -1,12 +1,12 @@
 <?php
 
-namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture;
+namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before;
 
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook as BeforeHook;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * @BeforeHook("@testService::beforeHookWithResponse")
+ * @BeforeHook("@test_service::beforeHookWithResponse")
  */
 class FooControllerBeforeAtClassServiceCallWithoutResponseWithoutArgs
 {

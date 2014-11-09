@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 class TestService
 {
     public $beforeHooksResults = array();
+    public $afterHooksResults = array();
 
     public function beforeHook()
     {
@@ -28,12 +29,22 @@ class TestService
         return new Response('serviceBeforeHook; args=' . json_encode(func_get_args()));
     }
 
-    public function afterHook(Response $response)
+    public function afterHook()
+    {
+        $this->afterHooksResults[] = 'afterHookTriggered';
+    }
+
+    public function afterHookWithArgs()
+    {
+        $this->afterHooksResults[] = 'afterHookTriggered: args=' . json_encode(func_get_args());
+    }
+
+    public function afterHookWithResponseModification(Response $response)
     {
         $response->setContent($response->getContent().' + serviceHookResponse');
     }
 
-    public function afterHookWithArgs(Response $response)
+    public function afterHookWithResponseModificationWithArgs(Response $response)
     {
         $args = array_slice(func_get_args(), 1);
         $response->setContent($response->getContent().' + serviceHookResponse; args=' . json_encode($args));

@@ -18,7 +18,7 @@ class FooControllerAfterAtMethod
     }
 
     /**
-     * @AfterHook("afterHookWithResponseModification")
+     * @AfterHook("afterHookWithResponseModification", args={"%response%"})
      */
     public function selfContainedAfterHookActionWithResponseModificationAction()
     {
@@ -26,17 +26,33 @@ class FooControllerAfterAtMethod
     }
 
     /**
-     * @AfterHook("@testService::afterHook")
+     * @AfterHook("@test_service::afterHook")
      */
-    public function serviceAfterHookAction()
+    public function serviceAfterHookWithoutResponseModificationAction()
     {
         return new Response('controllerResponse');
     }
 
     /**
-     * @AfterHook("@testService::afterHookWithArgs", args={"test1", {"key": "value"}})
+     * @AfterHook("@test_service::afterHookWithArgs", args={"test1", {"key": "value"}})
      */
-    public function serviceAfterHookWithArgsAction()
+    public function serviceAfterHookWithoutResponseModificationWithArgsAction()
+    {
+        return new Response('controllerResponse');
+    }
+
+    /**
+     * @AfterHook("@test_service::afterHookWithResponseModification", args={"%response%"})
+     */
+    public function serviceAfterHookWithResponseModificationAction()
+    {
+        return new Response('controllerResponse');
+    }
+
+    /**
+     * @AfterHook("@test_service::afterHookWithResponseModificationWithArgs", args={"%response%", "test1", {"key": "value"}})
+     */
+    public function serviceAfterHookWithResponseModificationWithArgsAction()
     {
         return new Response('controllerResponse');
     }

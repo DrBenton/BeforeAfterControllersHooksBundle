@@ -10,11 +10,11 @@ namespace DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener;
 
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtMethod;
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtClassWithoutResponseWithoutArgs;
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtClassWithResponseWithoutArgs;
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtClassWithResponseWithArgs;
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtClassServiceCallWithoutResponseWithoutArgs;
-use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\FooControllerBeforeAtClassServiceCallWithoutResponseWithArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before\FooControllerBeforeAtClassWithoutResponseWithoutArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before\FooControllerBeforeAtClassWithResponseWithoutArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before\FooControllerBeforeAtClassWithResponseWithArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before\FooControllerBeforeAtClassServiceCallWithoutResponseWithoutArgs;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\ControllerWithClassAnnotation\Before\FooControllerBeforeAtClassServiceCallWithoutResponseWithArgs;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\EventListener\Fixture\TestService;
 
 use Doctrine\Common\Annotations\AnnotationReader;
@@ -60,6 +60,13 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->event = null;
     }
 
+    /**********************************
+     * Methods Annotations tests
+     *********************************/
+
+    /**
+     * Controller short-circuiting: N - Args : N - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtMethodWithoutReturnedResponse()
     {
         $controller = $this->triggerControllerAction(
@@ -73,6 +80,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : N - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtMethodWithReturnedResponse()
     {
         $controller = $this->triggerControllerAction(
@@ -84,6 +94,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
     }
 
+    /**
+     * Controller short-circuiting: N - Args : Y - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtMethodWithoutReturnedResponseWithArgs()
     {
         $controller = $this->triggerControllerAction(
@@ -98,32 +111,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
     }
 
-    public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithoutReturnedResponse()
-    {
-        $controller = $this->triggerControllerAction(
-            new FooControllerBeforeAtMethod(),
-            'selfContainedMultipleBeforeHooksActionWithoutHookResponseAction'
-        );
-
-        $this->assertCount(2, $controller->beforeHooksResults, 'Two Controllers @BeforeHook callbacks should have been triggered');
-
-        $response = $this->getKernelResponse($this->event->getController());
-        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
-    }
-
-    public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithReturnedResponse()
-    {
-        $controller = $this->triggerControllerAction(
-            new FooControllerBeforeAtMethod(),
-            'selfContainedMultipleBeforeHooksActionWithHookResponseAction'
-        );
-
-        $this->assertCount(2, $controller->beforeHooksResults, 'Only two Controllers @BeforeHook callbacks should have been triggered');
-
-        $response = $this->getKernelResponse($this->event->getController());
-        $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
-    }
-
+    /**
+     * Controller short-circuiting: Y - Args : Y - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtMethodWithReturnedResponseWithArgs()
     {
         $controller = $this->triggerControllerAction(
@@ -135,6 +125,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hookResponse: Hi there!', $response->getContent(), 'Controller should not have been triggered, args should have been received');
     }
 
+    /**
+     * Controller short-circuiting: N - Args : N - Service call : Y
+     */
     public function testServiceCallAnnotationAtMethod()
     {
         $this->initTestService();
@@ -146,9 +139,12 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
-        $this->assertCount(1, $this->container->get('testService')->beforeHooksResults, 'Service should have been used');
+        $this->assertCount(1, $this->container->get('test_service')->beforeHooksResults, 'Service should have been used');
     }
 
+    /**
+     * Controller short-circuiting: N - Args : Y - Service call : Y
+     */
     public function testServiceCallAnnotationWithArgsAtMethod()
     {
         $this->initTestService();
@@ -160,10 +156,13 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
         $response = $this->getKernelResponse($this->event->getController());
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
-        $this->assertCount(1, $this->container->get('testService')->beforeHooksResults, 'Service should have been used');
-        $this->assertEquals('beforeHookTriggered: args=["test1",{"key":"value"}]', $this->container->get('testService')->beforeHooksResults[0], 'Service @BeforeHook should have been used with args');
+        $this->assertCount(1, $this->container->get('test_service')->beforeHooksResults, 'Service should have been used');
+        $this->assertEquals('beforeHookTriggered: args=["test1",{"key":"value"}]', $this->container->get('test_service')->beforeHooksResults[0], 'Service @BeforeHook should have been used with args');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : N - Service call : Y
+     */
     public function testServiceCallAnnotationWithResponseAtMethod()
     {
         $this->initTestService();
@@ -177,6 +176,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('serviceBeforeHook', $response->getContent(), 'Service @BeforeHook should have short-circuited the Controller');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : Y - Service call : Y
+     */
     public function testServiceCallAnnotationWithResponseWithArgsAtMethod()
     {
         $this->initTestService();
@@ -190,6 +192,45 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('serviceBeforeHook; args=["test1",{"key":"value"}]', $response->getContent(), 'Service @BeforeHook should have short-circuited the Controller with args');
     }
 
+    /**
+     * Controller short-circuiting: N - Args : N - Service call : N - Multiple Annotations
+     */
+    public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithoutReturnedResponse()
+    {
+        $controller = $this->triggerControllerAction(
+            new FooControllerBeforeAtMethod(),
+            'selfContainedMultipleBeforeHooksActionWithoutHookResponseAction'
+        );
+
+        $this->assertCount(2, $controller->beforeHooksResults, 'Two Controllers @BeforeHook callbacks should have been triggered');
+
+        $response = $this->getKernelResponse($this->event->getController());
+        $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
+    }
+
+    /**
+     * Controller short-circuiting: Y - Args : N - Service call : N - Multiple Annotations
+     */
+    public function testSelfContainedMultipleBeforeAnnotationsAtMethodWithReturnedResponse()
+    {
+        $controller = $this->triggerControllerAction(
+            new FooControllerBeforeAtMethod(),
+            'selfContainedMultipleBeforeHooksActionWithHookResponseAction'
+        );
+
+        $this->assertCount(2, $controller->beforeHooksResults, 'Only two Controllers @BeforeHook callbacks should have been triggered');
+
+        $response = $this->getKernelResponse($this->event->getController());
+        $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
+    }
+
+    /**********************************
+     * Class Annotations tests
+     *********************************/
+
+    /**
+     * Controller short-circuiting: N - Args : N - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtClassWithoutReturnedResponseWithoutArgs()
     {
         $controller = $this->triggerControllerAction(
@@ -203,6 +244,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('controllerResponse', $response->getContent(), 'Controller should have been triggered');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : N - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtClassWithReturnedResponseWithoutArgs()
     {
         $controller = $this->triggerControllerAction(
@@ -216,6 +260,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hookResponse', $response->getContent(), 'Controller should not have been triggered');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : Y - Service call : N
+     */
     public function testSelfContainedBeforeAnnotationAtClassWithReturnedResponseWithArgs()
     {
         $controller = $this->triggerControllerAction(
@@ -229,6 +276,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('hookResponse: Good morning Mr. Phelps.', $response->getContent(), 'Controller should not have been triggered');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : N - Service call : Y
+     */
     public function testServiceCallAnnotationAtClass()
     {
         $this->initTestService();
@@ -242,6 +292,9 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('serviceBeforeHook', $response->getContent(), 'Service @BeforeHook should have short-circuited the Controller');
     }
 
+    /**
+     * Controller short-circuiting: Y - Args : Y - Service call : Y
+     */
     public function testServiceCallAnnotationWithArgsAtClass()
     {
         $this->initTestService();
@@ -284,6 +337,6 @@ class ControllerListenerTest extends \PHPUnit_Framework_TestCase
 
     protected function initTestService()
     {
-        $this->container->set('testService', new TestService());
+        $this->container->set('test_service', new TestService());
     }
 }
