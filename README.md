@@ -143,6 +143,12 @@ Add the following line to the `composer.json` file:
 }
 ```
 
+Then run:
+
+``` bash
+$ composer update "dr-benton/before-after-controllers-hooks-bundle"
+```
+
 ### Step 2: Enable the bundle
 
 Finally, enable the bundle in the kernel:
