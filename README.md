@@ -30,6 +30,12 @@ use DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterController
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Template;
 
+/**
+ * Before any of this Controller Action, its 'checkSomething' method
+ * will be triggered:
+ *
+ * @BeforeHook("checkSomething")
+ */
 class BooksController extends Controller
 {
     /**
@@ -94,11 +100,16 @@ class BooksController extends Controller
         return ['book' => $book];
     }
 
-    protected function checkBooksAvailability()
+    protected function checkSomething()
     {
         // Do something here...
         // It this method returns a Symfony Response, the Controller
         // will be short-circuited and this Response will be sent to the client.
+    }
+
+    protected function checkBooksAvailability()
+    {
+        // idem: return a Response here if oy want to short-circuit the Controller
     }
 
     protected function doSomethingBeforeAction($arg1, $arg2)
