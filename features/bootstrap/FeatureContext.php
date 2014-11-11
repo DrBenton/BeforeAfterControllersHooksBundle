@@ -84,6 +84,15 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
+     * @Given I have a Symfony test Service
+     */
+    public function iHaveASymfonyTestService()
+    {
+        require_once __DIR__ . '/../fixtures/TestService.php';
+        $this->container->set('test_service', new \DrBenton\Bundle\BeforeAfterControllersHooksBundle\Tests\Behat\Fixture\TestService());
+    }
+
+    /**
      * @When /^(?:I )?run the Controller Action through the Symfony Kernel$/
      */
     public function iRunTheControllerActionThroughTheSymfonyKernel()
@@ -106,7 +115,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Then /^(?:I )?should have a "(?P<response>[^"]+)" Http Response content$/
+     * @Then /^(?:I )?should have a "(?P<response>.+)" Http Response content$/
      */
     public function iShouldHaveAHttpResponseContent($response)
     {
@@ -123,7 +132,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Then /^(?:I )?should have a "(?P<string>[^"]+)" string in the Controller state$/
+     * @Then /^(?:I )?should have a "(?P<string>.+)" string in the Controller state$/
      */
     public function iShouldHaveAStringInTheControllerState($string)
     {
@@ -139,14 +148,33 @@ class FeatureContext implements Context, SnippetAcceptingContext
         }
     }
 
+
+    /**
+     * @Then /^(?:I )?should have a "(?P<string>.+)" string in the Symfony test Service state$/
+     */
+    public function iShouldHaveAStringInTheSymfonyTestServiceState($string)
+    {
+        if (!$this->container->has('test_service')) {
+            throw new \LogicException('You have to init the Symfony test Serice before using "I should have a "..." string in the Symfony test Service state"!');
+        }
+
+        $testService = $this->container->get('test_service');
+        $testServiceState = $testService->serviceState;
+        if (!in_array($string, $testServiceState)) {
+            throw new \Exception(
+                sprintf('The Symfony test Service state array "%s" doesn\'t contain the expected string "%s"!', json_encode($testServiceState), $string)
+            );
+        }
+    }
+
     /**
      * @BeforeFeature
      */
     static public function beforeFeature()
     {
-        // trigger the autoloading of our Controllers hooks annotation
-        class_exists('DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\BeforeControllerHook');
-        class_exists('DrBenton\Bundle\BeforeAfterControllersHooksBundle\Annotation\AfterControllerHook');
+        // Let's link the Doctrine Annotations loading to the "class_exists()" function.
+        // --> it will trigger the Composer autoloader
+        \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader('class_exists');
     }
 
     /**
