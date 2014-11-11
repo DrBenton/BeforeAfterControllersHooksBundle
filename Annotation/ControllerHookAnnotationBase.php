@@ -39,7 +39,7 @@ abstract class ControllerHookAnnotationBase extends ContainerAware
 
         if (null === $this->targetCallable) {
             throw new \InvalidArgumentException(sprintf(
-               'Invalid Pre/Post Annotation usage! Please provide a "value" or "target" parameter. Params received: %s',
+               'Invalid Before/After Annotation usage! Please provide a "value" or "target" parameter. Params received: %s',
                 json_encode($annotationParams)
             ));
         }
