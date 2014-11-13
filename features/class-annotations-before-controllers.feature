@@ -34,6 +34,21 @@ Feature:
         Then I should have a "controllerResponse" Http Response content
         And I should have "Good morning Mr. Phelps/controllerAction" strings in the Controller state
 
+    Scenario: Run multiple Controller class self-contained methods before running any of its target Action, with a params transmission
+        Given I have a Controller class with a @Before("beforeAction", args={"Good morning", "Mr. Phelps"}) Class Annotation
+        And a @Before("beforeAction", args={"Well", "nobody’s perfect!"}) Class Annotation
+        And a self-contained method in a Controller with the following content:
+            """
+            public function beforeAction($arg1, $arg2)
+            {
+                $this->controllerState[] = $arg1.' '.$arg2;
+            }
+            """
+        And I have a Symfony ControllerListener
+        When I run the Controller Action through the Symfony Kernel
+        Then I should have a "controllerResponse" Http Response content
+        And I should have "Good morning Mr. Phelps/Well nobody’s perfect!/controllerAction" strings in the Controller state
+
     Scenario: Run a Controller class self-contained method which short-circuit any of its Actions
         Given I have a Controller class with a @Before("beforeAction") Class Annotation
         And a self-contained method in a Controller with the following content:
