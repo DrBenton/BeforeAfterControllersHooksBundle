@@ -16,6 +16,12 @@ class BeforeControllerHook extends ControllerHookAnnotationBase
 
         $callableArgs = $this->targetCallableArgs;
 
+        if (!is_callable($targetCallable)) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid @Before callback %s!', json_encode($this->annotationParams))
+            );
+        }
+
         return call_user_func_array($targetCallable, $callableArgs);
     }
 }

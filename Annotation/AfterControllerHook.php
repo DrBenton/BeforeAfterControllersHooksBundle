@@ -20,6 +20,12 @@ class AfterControllerHook extends ControllerHookAnnotationBase
             }
         }
 
+        if (!is_callable($targetCallable)) {
+            throw new \InvalidArgumentException(
+                sprintf('Invalid @After callback %s!', json_encode($this->annotationParams))
+            );
+        }
+
         return call_user_func_array($targetCallable, $callableArgs);
     }
 }
