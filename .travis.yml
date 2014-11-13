@@ -8,3 +8,6 @@ php:
 before_script:
   # Composer install
   - composer install --no-interaction --prefer-source # Have to prefer source or hit github rate limit
+
+script:
+  - ./vendor/bin/behat --stop-on-failure
