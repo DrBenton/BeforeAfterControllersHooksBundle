@@ -55,7 +55,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Given /^(?:I have )?a Controller with a (?P<annotation>.+) Action Annotation$/
+     * @Given /^(?:(?:I have )?a Controller with )?a (?P<annotation>.+) Action Annotation$/
      */
     public function aControllerWithActionAnnotation($annotation)
     {
@@ -63,7 +63,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Given /^(?:I have )?a Controller class with a (?P<annotation>.+) Class Annotation$/
+     * @Given /^(?:(?:I have )?a Controller class with )?a (?P<annotation>.+) Class Annotation$/
      */
     public function aControllerClassWithClassAnnotation($annotation)
     {
@@ -108,7 +108,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
 
 
     /**
-     * @Given a self-contained method in a Controller with the following content:
+     * @Given /^a self-contained method (?:in a Controller )?with the following content:$/
      */
     public function aSelfContainedMethodInAControllerWithTheFollowingContent(PyStringNode $string)
     {
@@ -246,7 +246,7 @@ class FeatureContext implements Context, SnippetAcceptingContext
             $controllerActionAnnotations = '';
         }
         if (isset($defs['methods'])) {
-            $controllerMethods = PHP_EOL . '    ' . implode(PHP_EOL, $defs['methods']);
+            $controllerMethods = PHP_EOL . '    ' . implode(PHP_EOL . PHP_EOL . '    ', $defs['methods']);
         } else {
             $controllerMethods = '';
         }

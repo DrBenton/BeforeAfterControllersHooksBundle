@@ -47,6 +47,29 @@ Feature:
         When I run the Controller Action through the Symfony Kernel
         Then I should have a "modified Response: controllerResponse" Http Response content
 
+    Scenario: Run multiple Controller class self-contained methods after running its target Action, with a params transmission
+        Given I have a Controller with a @After("afterAction", args={"Hello", "Plum"}) Action Annotation
+        And a @After("afterActionWithResponseModification", args={"P.G.", "%response%", "Wodehouse"}) Action Annotation
+        And a self-contained method in a Controller with the following content:
+            """
+            public function afterAction($goodMorning, $who)
+            {
+                $this->controllerState[] = $goodMorning.' '.$who;
+            }
+            """
+        And a self-contained method with the following content:
+            """
+            public function afterActionWithResponseModification($firstName, Response $response, $lastName)
+            {
+                $this->controllerState[] = $firstName.' '.$lastName;
+                $response->setContent('modified Response: ' . $response->getContent());
+            }
+            """
+        And I have a Symfony ResponseListener
+        When I run the Controller Action through the Symfony Kernel
+        Then I should have a "modified Response: controllerResponse" Http Response content
+        And I should have "controllerAction/Hello Plum/P.G. Wodehouse" strings in the Controller state
+
     Scenario: Run a Symfony Service method after running the Controller target Action
         Given I have a Symfony test Service
         And a Controller with a @After("@test_service::afterHook") Action Annotation
