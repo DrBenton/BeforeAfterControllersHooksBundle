@@ -1,5 +1,6 @@
 /composer.lock
 /vendor/
+/behat.yml
 
 # IDE files
 /.idea/

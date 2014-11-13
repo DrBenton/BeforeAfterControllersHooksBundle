@@ -1,0 +1,8 @@
+default:
+    suites:
+        atomic_tests:
+            filters:
+                tags: ~@all-in-one
+        all_in_one_test:
+            filters:
+                tags: @all-in-one
