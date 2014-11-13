@@ -32,7 +32,7 @@ Feature:
         And I have a Symfony ResponseListener
         When I run the Controller Action through the Symfony Kernel
         Then I should have a "controllerResponse" Http Response content
-        And I should have a "controllerAction/Good morning Mr. Phelps" string in the Controller state
+        And I should have "controllerAction/Good morning Mr. Phelps" strings in the Controller state
 
     Scenario: Run a Controller class self-contained method which modifies the target Action Response
         Given I have a Controller with a @After("afterAction", args={"%response%"}) Action Annotation
