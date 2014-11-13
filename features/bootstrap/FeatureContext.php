@@ -63,6 +63,14 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
+     * @Given /^(?:I have )?a Controller class with a (?P<annotation>.+) Class Annotation$/
+     */
+    public function aControllerClassWithClassAnnotation($annotation)
+    {
+        $this->controllerDefinition['classAnnotations'][] = ' * ' . $annotation . PHP_EOL;
+    }
+
+    /**
      * @Given /^(?:I have )?a Symfony ControllerListener$/
      */
     public function iHaveASymfonyControllerlistener()
@@ -221,14 +229,14 @@ class FeatureContext implements Context, SnippetAcceptingContext
         $defs = $this->controllerDefinition;
 
         // Class content setup
-        $controllerActionContent = '$this->controllerState[] = \'controllerAction\';' . PHP_EOL;
         if ($this->targetControllerThrowsAnException) {
-            $controllerActionContent .= '        throw new \\Exception(\'This Controller Action should not be triggered!\');';
+            $controllerActionContent = 'throw new \\Exception(\'This Controller Action should not be triggered!\');';
         } else {
-            $controllerActionContent .= '        return new Response(\'controllerResponse\');';
+            $controllerActionContent = '$this->controllerState[] = \'controllerAction\';' . PHP_EOL .
+                               '        return new Response(\'controllerResponse\');';
         }
         if (isset($defs['classAnnotations'])) {
-            $classAnnotations = '/**' . PHP_EOL . implode('', $defs['classAnnotations']) . '     */';
+            $classAnnotations = PHP_EOL . '/**' . PHP_EOL . implode('', $defs['classAnnotations']) . ' */';
         } else {
             $classAnnotations = '';
         }
