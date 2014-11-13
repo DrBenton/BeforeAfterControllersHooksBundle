@@ -18,7 +18,21 @@ Feature:
         And I have a Symfony ControllerListener
         When I run the Controller Action through the Symfony Kernel
         Then I should have a "controllerResponse" Http Response content
-        And I should have a "beforeAction" string in the Controller state
+        And I should have "beforeAction/controllerAction" strings in the Controller state
+
+    Scenario: Run a Controller class self-contained method before running its target Action, with a params transmission
+        Given I have a Controller with a @Before("beforeAction", args={"Good morning", "Mr. Phelps"}) Action Annotation
+        And a self-contained method in a Controller with the following content:
+            """
+            public function beforeAction($goodMorning, $who)
+            {
+                $this->controllerState[] = $goodMorning.' '.$who;
+            }
+            """
+        And I have a Symfony ControllerListener
+        When I run the Controller Action through the Symfony Kernel
+        Then I should have a "controllerResponse" Http Response content
+        And I should have "Good morning Mr. Phelps/controllerAction" strings in the Controller state
 
     Scenario: Run a Controller class self-contained method which short-circuit the target Action
         Given I have a Controller with a @Before("beforeAction") Action Annotation
@@ -49,20 +63,6 @@ Feature:
         And a Symfony ControllerListener
         When I run the Controller Action through the Symfony Kernel
         Then I should have a "serviceBeforeHook" Http Response content
-
-    Scenario: Run a Controller class self-contained method before running its target Action, with a params transmission
-        Given I have a Controller with a @Before("beforeAction", args={"Good morning", "Mr. Phelps"}) Action Annotation
-        And a self-contained method in a Controller with the following content:
-            """
-            public function beforeAction($goodMorning, $who)
-            {
-                $this->controllerState[] = $goodMorning.' '.$who;
-            }
-            """
-        And I have a Symfony ControllerListener
-        When I run the Controller Action through the Symfony Kernel
-        Then I should have a "controllerResponse" Http Response content
-        And I should have a "Good morning Mr. Phelps" string in the Controller state
 
     Scenario: Run a Symfony Service method before running the Controller target Action, with a params transmission
         Given I have a Symfony test Service

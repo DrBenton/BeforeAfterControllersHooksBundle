@@ -6,6 +6,7 @@ use Behat\Gherkin\Node\PyStringNode;
 use Behat\Gherkin\Node\TableNode;
 use Doctrine\Common\Annotations\AnnotationReader;
 use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener;
+use DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,6 +14,7 @@ use Symfony\Component\HttpKernel\Controller\ControllerResolver;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernel;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 
 class FeatureContext implements Context, SnippetAcceptingContext
 {
@@ -22,13 +24,15 @@ class FeatureContext implements Context, SnippetAcceptingContext
     protected $request;
     /** @var \Symfony\Component\HttpKernel\HttpKernelInterface **/
     protected $kernel;
+    /** @var \Symfony\Component\EventDispatcher\EventDispatcher **/
+    protected $kernelEventDispatcher;
     /** @var \Symfony\Component\HttpFoundation\Response **/
     protected $kernelResponse;
 
     /** @var \DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ControllerListener **/
     protected $controllerListener;
-    /** @var \Symfony\Component\HttpKernel\Event\FilterControllerEvent **/
-    protected $filterControllerEvent;
+    /** @var \DrBenton\Bundle\BeforeAfterControllersHooksBundle\EventListener\ResponseListener **/
+    protected $responseListener;
 
     protected $targetControllerThrowsAnException = false;
     protected $displayControllersCode = false;
@@ -46,7 +50,8 @@ class FeatureContext implements Context, SnippetAcceptingContext
     public function aSymfonyHttpkernel()
     {
         $this->container = new Container();
-        $this->kernel = new HttpKernel(new EventDispatcher(), new ControllerResolver());
+        $this->kernelEventDispatcher = new EventDispatcher();
+        $this->kernel = new HttpKernel($this->kernelEventDispatcher, new ControllerResolver());
     }
 
     /**
@@ -64,6 +69,25 @@ class FeatureContext implements Context, SnippetAcceptingContext
     {
         $this->controllerListener = new ControllerListener(new AnnotationReader());
         $this->controllerListener->setContainer($this->container);
+
+        $this->kernelEventDispatcher->addListener(
+            KernelEvents::CONTROLLER,
+            array($this->controllerListener, 'onKernelController')
+        );
+    }
+
+    /**
+     * @Given /^(?:I have )?a Symfony ResponseListener$/
+     */
+    public function iHaveASymfonyResponseListener()
+    {
+        $this->responseListener = new ResponseListener(new AnnotationReader());
+        $this->responseListener->setContainer($this->container);
+
+        $this->kernelEventDispatcher->addListener(
+            KernelEvents::RESPONSE,
+            array($this->responseListener, 'onKernelResponse')
+        );
     }
 
     /**
@@ -104,12 +128,6 @@ class FeatureContext implements Context, SnippetAcceptingContext
 
         $this->request = new Request();
 
-        if (null !== $this->controllerListener) {
-            $this->filterControllerEvent = new FilterControllerEvent($this->kernel, $targetControllerAction, $this->request, HttpKernelInterface::MASTER_REQUEST);
-            $this->controllerListener->onKernelController($this->filterControllerEvent);
-            $targetControllerAction = $this->filterControllerEvent->getController();
-        }
-
         $this->request->attributes->set('_controller', $targetControllerAction);
         $this->kernelResponse = $this->kernel->handle($this->request);
     }
@@ -132,27 +150,28 @@ class FeatureContext implements Context, SnippetAcceptingContext
     }
 
     /**
-     * @Then /^(?:I )?should have a "(?P<string>.+)" string in the Controller state$/
+     * @Then /^(?:I )?should have (?:a )?"(?P<strings>.+)" strings? in the Controller state$/
      */
-    public function iShouldHaveAStringInTheControllerState($string)
+    public function iShouldHaveAStringInTheControllerState($strings)
     {
         if (null === $this->controllerInstance) {
             throw new \LogicException('You have to run the Controller Action before using "I should have a "..." string in the Controller state"!');
         }
 
         $controllerState = $this->controllerInstance->controllerState;
-        if (!in_array($string, $controllerState)) {
+
+        $expectedStrings = explode('/', $strings);
+        if ($expectedStrings !== $controllerState) {
             throw new \Exception(
-                sprintf('The Controller state array "%s" doesn\'t contain the expected string "%s"!', json_encode($controllerState), $string)
+                sprintf('The Controller state array "%s" doesn\'t contain the expected strings "%s"!', json_encode($controllerState), $strings)
             );
         }
     }
 
-
     /**
-     * @Then /^(?:I )?should have a "(?P<string>.+)" string in the Symfony test Service state$/
+     * @Then /^(?:I )?should have (?:a )?"(?P<strings>.+)" strings? in the Symfony test Service state$/
      */
-    public function iShouldHaveAStringInTheSymfonyTestServiceState($string)
+    public function iShouldHaveAStringInTheSymfonyTestServiceState($strings)
     {
         if (!$this->container->has('test_service')) {
             throw new \LogicException('You have to init the Symfony test Serice before using "I should have a "..." string in the Symfony test Service state"!');
@@ -160,9 +179,11 @@ class FeatureContext implements Context, SnippetAcceptingContext
 
         $testService = $this->container->get('test_service');
         $testServiceState = $testService->serviceState;
-        if (!in_array($string, $testServiceState)) {
+
+        $expectedStrings = explode('/', $strings);
+        if ($expectedStrings !== $testServiceState) {
             throw new \Exception(
-                sprintf('The Symfony test Service state array "%s" doesn\'t contain the expected string "%s"!', json_encode($testServiceState), $string)
+                sprintf('The Symfony test Service state array "%s" doesn\'t contain the expected strings "%s"!', json_encode($testServiceState), $strings)
             );
         }
     }
@@ -200,10 +221,11 @@ class FeatureContext implements Context, SnippetAcceptingContext
         $defs = $this->controllerDefinition;
 
         // Class content setup
+        $controllerActionContent = '$this->controllerState[] = \'controllerAction\';' . PHP_EOL;
         if ($this->targetControllerThrowsAnException) {
-            $controllerActionContent = 'throw new \\Exception(\'This Controller Action should not be triggered!\');';
+            $controllerActionContent .= '        throw new \\Exception(\'This Controller Action should not be triggered!\');';
         } else {
-            $controllerActionContent = 'return new Response(\'controllerResponse\');';
+            $controllerActionContent .= '        return new Response(\'controllerResponse\');';
         }
         if (isset($defs['classAnnotations'])) {
             $classAnnotations = '/**' . PHP_EOL . implode('', $defs['classAnnotations']) . '     */';
