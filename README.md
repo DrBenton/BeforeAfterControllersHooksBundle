@@ -133,20 +133,10 @@ class BooksController extends Controller
 
 ### Step 1: Composer
 
-Add the following line to the `composer.json` file:
+Simply run, assuming you have installed composer.phar or composer binary:
 
-``` json
-{
-    "require": {
-        "dr-benton/before-after-controllers-hooks-bundle": "@dev-master"
-    }
-}
-```
-
-Then run:
-
-``` bash
-$ composer update "dr-benton/before-after-controllers-hooks-bundle"
+```bash
+$ composer require dr-benton/before-after-controllers-hooks-bundle
 ```
 
 ### Step 2: Enable the bundle
